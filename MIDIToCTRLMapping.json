@@ -1,0 +1,10 @@
+{
+    "control_0" : "RightHandIndex",
+    "control_1" : "RightHandMiddle",
+    "control_2" : "RightHandRing",
+    "control_3" : "RightHandPinky",
+    "control_4" : "LeftHandIndex",
+    "control_5" : "LeftHandMiddle",
+    "control_6" : "LeftHandRing",
+    "control_7" : "LeftHandPinky"
+}

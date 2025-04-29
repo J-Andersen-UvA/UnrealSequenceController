@@ -30,7 +30,7 @@ class tickHooker:
         else:
             print("No tick hook to unhook.")
 
-    def hook_for_x_ticks(self, func, x):
+    def hook_for_x_ticks(self, func, x, final_func=None):
         if not isinstance(x, int) or x <= 0:
             raise ValueError("x must be a positive integer")
 
@@ -40,6 +40,22 @@ class tickHooker:
                 func(delta_seconds)
                 x -= 1
             if x == 0:
+                if final_func:
+                    final_func(delta_seconds)
+                self.unhook()
+
+        self.hook(tick_wrapper)
+
+    def wait_x_ticks_then_execute(self, func, x):
+        if not isinstance(x, int) or x <= 0:
+            raise ValueError("x must be a positive integer")
+
+        def tick_wrapper(delta_seconds):
+            nonlocal x
+            if x > 0:
+                x -= 1
+            if x == 0:
+                func(delta_seconds)
                 self.unhook()
 
         self.hook(tick_wrapper)

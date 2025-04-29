@@ -23,7 +23,6 @@ class SequencerControls:
     class time_controls:
         def __init__(self, sequence: unreal.LevelSequence):
             self.sequence = sequence
-            self.current_time = unreal.LevelSequenceEditorBlueprintLibrary.get_current_time()
             self.initial_playback_range = self.get_sequence_range()
 
         def jump_to_frame(self, frame_number: int):
@@ -42,7 +41,6 @@ class SequencerControls:
             current_time = unreal.LevelSequenceEditorBlueprintLibrary.get_current_time()
             new_time = current_time + x
             unreal.LevelSequenceEditorBlueprintLibrary.set_current_time(new_time)
-            self.current_time = new_time
             print(f"[SequencerControls] Jumped {x} frames forward to {new_time}")
         
         def jump_x_frames_backward(self, x: int):
@@ -53,7 +51,6 @@ class SequencerControls:
             current_time = unreal.LevelSequenceEditorBlueprintLibrary.get_current_time()
             new_time = current_time - x
             unreal.LevelSequenceEditorBlueprintLibrary.set_current_time(new_time)
-            self.current_time = new_time
             print(f"[SequencerControls] Jumped {x} frames backward to {new_time}")
 
         def get_sequence_range(self):
@@ -88,6 +85,15 @@ class SequencerControls:
             self.set_sequence_range(self.initial_playback_range[0], self.initial_playback_range[1])
             print("[SequencerControls] Reset playback range to default")
 
+        def current_time(self):
+            if not self.sequence:
+                print("Error: No sequence set.")
+                return
+
+            current_time = unreal.LevelSequenceEditorBlueprintLibrary.get_current_time()
+            print(f"[SequencerControls] Current time: {current_time}")
+            return current_time
+
     def add_actor_to_sequence(self, actor : unreal.Actor):
         if not self.sequence:
             print("Error: No sequence set.")
@@ -118,7 +124,7 @@ class SequencerControls:
 
         animation_section = anim_track.add_section()
         animation_section.set_editor_property('Params', params)
-        animation_section.set_range(0, anim.get_play_length()*sequencer_controls.frame_rate)
+        animation_section.set_range(0, anim.get_play_length()*self.frame_rate)
 
         print(f"[SequencerControls] Added animation {anim.get_name()} to actor {skeletal_mesh.get_name()} in sequence")
         return anim_track, animation_section
@@ -135,28 +141,43 @@ class SequencerControls:
         rig_class = control_rig.get_control_rig_class()
         rig_track = unreal.ControlRigSequencerLibrary.find_or_create_control_rig_track(world, self.sequence, rig_class, skeletal_mesh, is_layered_control_rig = True)
 
+        # Get the Control Rig instance
+        control_rig_instance = unreal.ControlRigSequencerLibrary.get_control_rigs(self.sequence)[0].control_rig
+
         print(f"[SequencerControls] Added Control Rig {control_rig.get_name()} to actor {skeletal_mesh.get_name()} in sequence")
-        return rig_track
+        return rig_track, control_rig_instance
 
 
-# example usage for /Game/anims/testSequence.testSequence
-sequence = unreal.EditorAssetLibrary.load_asset("/Game/anims/testSequence.testSequence")
-sequencer_controls = SequencerControls(sequence, frame_rate=100)
+# # example usage for /Game/anims/testSequence.testSequence
+# sequence = unreal.EditorAssetLibrary.load_asset("/Game/anims/testSequence.testSequence")
+# sequencer_controls = SequencerControls(sequence, frame_rate=100)
 
-# Example usage of time controls
-sequencer_controls.time_controls.jump_to_frame(10)  # Jump to frame 10
-sequencer_controls.time_controls.jump_x_frames_forward(5)  # Jump 5 frames forward
-print(sequencer_controls.time_controls.reset_sequence_range())  # Reset the sequence range to default
+# # Example usage of time controls
+# sequencer_controls.time_controls.jump_to_frame(10)  # Jump to frame 10
+# sequencer_controls.time_controls.jump_x_frames_forward(5)  # Jump 5 frames forward
+# print(sequencer_controls.time_controls.reset_sequence_range())  # Reset the sequence range to default
 
-actor = get_actor_by_name("SkeletalMeshActor_6")  # Fetch the actor by name
-skeletal_mesh = sequencer_controls.add_possesable_to_sequence(actor)  # Add the actor to the sequence
-print()
+# # Add an actor to the sequence
+# actor = get_actor_by_name("SkeletalMeshActor_6")  # Fetch the actor by name
+# skeletal_mesh = sequencer_controls.add_possesable_to_sequence(actor)  # Add the actor to the sequence
+# print()
 
-# Add animation to the skeletal mesh in the sequence
-anim_asset = unreal.AnimSequence.cast(unreal.load_asset("/Game/anims/tmp/1_curved.1_curved"))
-anim_track, animation_section = sequencer_controls.add_animation_to_actor(skeletal_mesh, anim_asset)  # Add animation to the actor in the sequence
-sequencer_controls.time_controls.set_sequence_range(animation_section.get_start_frame(), animation_section.get_end_frame())  # Set the sequence range to the animation length
+# # Add animation to the skeletal mesh in the sequence
+# anim_asset = unreal.AnimSequence.cast(unreal.load_asset("/Game/anims/tmp/1_curved.1_curved"))
+# anim_track, animation_section = sequencer_controls.add_animation_to_actor(skeletal_mesh, anim_asset)  # Add animation to the actor in the sequence
+# sequencer_controls.time_controls.set_sequence_range(animation_section.get_start_frame(), animation_section.get_end_frame())  # Set the sequence range to the animation length
 
-# Add control rig to the skeletal mesh in the  sequence /Game/Avatars/RPM/GlassesGuy/armHands_Rig.armHands_Rig
-control_rig_asset = unreal.ControlRigBlueprint.cast(unreal.load_asset("/Game/Avatars/RPM/GlassesGuy/armHands_Rig.armHands_Rig"))
-control_rig_track = sequencer_controls.add_control_rig_to_actor(skeletal_mesh, control_rig_asset)  # Add control rig to the actor in the sequence
+# # Add control rig to the skeletal mesh in the  sequence /Game/Avatars/RPM/GlassesGuy/armHands_Rig.armHands_Rig
+# control_rig_asset = unreal.ControlRigBlueprint.cast(unreal.load_asset("/Game/Avatars/RPM/GlassesGuy/armHands_Rig.armHands_Rig"))
+# control_rig_track, control_rig_instance = sequencer_controls.add_control_rig_to_actor(skeletal_mesh, control_rig_asset)  # Add control rig to the actor in the sequence
+
+# # Gets the local control values, each control type will have their own typed function
+# frame = unreal.FrameNumber(0)
+# transform = unreal.ControlRigSequencerLibrary.get_local_control_rig_float(sequence, control_rig_instance, "RightHandIndex", frame)
+# print(transform)
+
+# sequencer_controls.time_controls.jump_to_frame(30)  # Jump to frame 30
+# frame = unreal.FrameNumber(sequencer_controls.time_controls.current_time())
+# unreal.ControlRigSequencerLibrary.set_local_control_rig_float(sequence, control_rig_instance, "RightHandIndex", frame, 20)
+# transform = unreal.ControlRigSequencerLibrary.get_local_control_rig_float(sequence, control_rig_instance, "RightHandIndex", frame)
+# print(transform)
