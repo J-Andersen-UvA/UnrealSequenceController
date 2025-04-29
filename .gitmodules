@@ -1,0 +1,3 @@
+[submodule "source/MIDIToOSC"]
+	path = source/MIDIToOSC
+	url = https://github.com/J-Andersen-UvA/MIDIToOSC.git
