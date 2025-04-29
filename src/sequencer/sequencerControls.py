@@ -122,6 +122,21 @@ class SequencerControls:
 
         print(f"[SequencerControls] Added animation {anim.get_name()} to actor {skeletal_mesh.get_name()} in sequence")
         return anim_track, animation_section
+    
+    def add_control_rig_to_actor(self, skeletal_mesh, control_rig):
+        if not self.sequence:
+            print("Error: No sequence set.")
+            return
+
+        # Using the level sequence and actor binding, we can either find or create a control rig track from the class
+        editor_system = unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem)
+        world = editor_system.get_editor_world()
+        # Get the rig class
+        rig_class = control_rig.get_control_rig_class()
+        rig_track = unreal.ControlRigSequencerLibrary.find_or_create_control_rig_track(world, self.sequence, rig_class, skeletal_mesh, is_layered_control_rig = True)
+
+        print(f"[SequencerControls] Added Control Rig {control_rig.get_name()} to actor {skeletal_mesh.get_name()} in sequence")
+        return rig_track
 
 
 # example usage for /Game/anims/testSequence.testSequence
@@ -140,4 +155,8 @@ print()
 # Add animation to the skeletal mesh in the sequence
 anim_asset = unreal.AnimSequence.cast(unreal.load_asset("/Game/anims/tmp/1_curved.1_curved"))
 anim_track, animation_section = sequencer_controls.add_animation_to_actor(skeletal_mesh, anim_asset)  # Add animation to the actor in the sequence
-sequencer_controls.time_controls.set_sequence_range(0, animation_section.get_end_frame())  # Set the sequence range to the animation length
+sequencer_controls.time_controls.set_sequence_range(animation_section.get_start_frame(), animation_section.get_end_frame())  # Set the sequence range to the animation length
+
+# Add control rig to the skeletal mesh in the  sequence /Game/Avatars/RPM/GlassesGuy/armHands_Rig.armHands_Rig
+control_rig_asset = unreal.ControlRigBlueprint.cast(unreal.load_asset("/Game/Avatars/RPM/GlassesGuy/armHands_Rig.armHands_Rig"))
+control_rig_track = sequencer_controls.add_control_rig_to_actor(skeletal_mesh, control_rig_asset)  # Add control rig to the actor in the sequence
