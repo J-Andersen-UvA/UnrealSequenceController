@@ -1,0 +1,10 @@
+{
+    "0" : "RightHandIndex",
+    "1" : "RightHandMiddle",
+    "2" : "RightHandRing",
+    "3" : "RightHandPinky",
+    "4" : ["RightHand_ctrl", "EulerRotationX"],
+    "5" : ["RightHand_ctrl", "EulerRotationY"],
+    "6" : ["RightHand_ctrl", "EulerRotationZ"],
+    "7" : ["RightHandPinky3_ctrl", "RotatorX"]
+}
