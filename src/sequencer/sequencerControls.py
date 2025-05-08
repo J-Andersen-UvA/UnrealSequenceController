@@ -206,6 +206,27 @@ class SequencerControls:
             unreal.ControlRigSequencerLibrary.set_local_control_rig_rotator(self.sequence, self.control_rig, ctrl_name, frame_number, zRot, set_key=True)
             current = unreal.ControlRigSequencerLibrary.get_local_control_rig_rotator(self.sequence, self.control_rig, ctrl_name, frame_number)
             print(f"[SequencerControls] Set {ctrl_name} to {zRot} at frame {frame_number}, current value: {current}")
+        elif modus == "EulerRotationX":
+            # Get the current transform of the control rig
+            current_transform = unreal.ControlRigSequencerLibrary.get_local_control_rig_euler_transform(self.sequence, self.control_rig, ctrl_name, frame_number)
+            current_transform.rotation.roll = value
+            unreal.ControlRigSequencerLibrary.set_local_control_rig_euler_transform(self.sequence, self.control_rig, ctrl_name, frame_number, current_transform, set_key=True)
+            current = unreal.ControlRigSequencerLibrary.get_local_control_rig_euler_transform(self.sequence, self.control_rig, ctrl_name, frame_number)
+            print(f"[SequencerControls] Set {ctrl_name} to {value} at frame {frame_number}, current value: {current}")
+        elif modus == "EulerRotationY":
+            # Get the current transform of the control rig
+            current_transform = unreal.ControlRigSequencerLibrary.get_local_control_rig_euler_transform(self.sequence, self.control_rig, ctrl_name, frame_number)
+            current_transform.rotation.yaw = value
+            unreal.ControlRigSequencerLibrary.set_local_control_rig_euler_transform(self.sequence, self.control_rig, ctrl_name, frame_number, current_transform, set_key=True)
+            current = unreal.ControlRigSequencerLibrary.get_local_control_rig_euler_transform(self.sequence, self.control_rig, ctrl_name, frame_number)
+            print(f"[SequencerControls] Set {ctrl_name} to {value} at frame {frame_number}, current value: {current}")
+        elif modus == "EulerRotationZ":
+            # Get the current transform of the control rig
+            current_transform = unreal.ControlRigSequencerLibrary.get_local_control_rig_euler_transform(self.sequence, self.control_rig, ctrl_name, frame_number)
+            current_transform.rotation.pitch = value
+            unreal.ControlRigSequencerLibrary.set_local_control_rig_euler_transform(self.sequence, self.control_rig, ctrl_name, frame_number, current_transform, set_key=True)
+            current = unreal.ControlRigSequencerLibrary.get_local_control_rig_euler_transform(self.sequence, self.control_rig, ctrl_name, frame_number)
+            print(f"[SequencerControls] Set {ctrl_name} to {value} at frame {frame_number}, current value: {current}")
     
     def export_current_sequence(self, file_name, file_path, ue_package_path="/Game/"):
         if not self.sequence:
