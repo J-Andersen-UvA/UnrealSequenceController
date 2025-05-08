@@ -37,7 +37,7 @@ class tickHooker:
         def tick_wrapper(delta_seconds):
             nonlocal x
             if x > 0:
-                func(delta_seconds)
+                func()
                 x -= 1
             if x == 0:
                 if final_func:

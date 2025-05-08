@@ -1,0 +1,10 @@
+{
+    "0" : "RightHandIndex",
+    "1" : "RightHandMiddle",
+    "2" : "RightHandRing",
+    "3" : "RightHandPinky",
+    "4" : ["RightHandIndex3_ctrl", "RotatorX"],
+    "5" : ["RightHandMiddle3_ctrl", "RotatorX"],
+    "6" : ["RightHandRing3_ctrl", "RotatorX"],
+    "7" : ["RightHandPinky3_ctrl", "RotatorX"]
+}

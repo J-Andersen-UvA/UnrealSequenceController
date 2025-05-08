@@ -15,6 +15,11 @@ def get_actor_by_name(name):
 
 class SequencerControls:
     def __init__(self, sequence: unreal.LevelSequence, frame_rate: int = 30):
+        self.control_rig = None
+        self.skeletal_mesh = None
+        self.anim_sequence = None
+        self.actor = None
+        self.skeletal_mesh_binding_proxy = None
         self.sequence = sequence
         unreal.LevelSequenceEditorBlueprintLibrary.open_level_sequence(sequence)
         self.time_controls = self.time_controls(sequence)
@@ -93,6 +98,16 @@ class SequencerControls:
             current_time = unreal.LevelSequenceEditorBlueprintLibrary.get_current_time()
             print(f"[SequencerControls] Current time: {current_time}")
             return current_time
+        
+        def jump_to_percent(self, percent: float):
+            if not self.sequence:
+                print("Error: No sequence set.")
+                return
+
+            start, end = self.get_sequence_range()
+            new_time = start + (end - start) * (percent / 100.0)
+            unreal.LevelSequenceEditorBlueprintLibrary.set_current_time(new_time)
+            print(f"[SequencerControls] Jumped to {percent}% of the sequence")            
 
     def add_actor_to_sequence(self, actor : unreal.Actor):
         if not self.sequence:
@@ -100,6 +115,7 @@ class SequencerControls:
             return
 
         # Add the actor to the sequence
+        self.actor = actor
         unreal.LevelSequenceEditorBlueprintLibrary.add_actor_to_sequence(self.sequence, actor)
         print(f"[SequencerControls] Added actor {actor.get_name()} to sequence")
     
@@ -111,11 +127,19 @@ class SequencerControls:
         # Add the spawnable to the sequence
         possesable = self.sequence.add_possessable(possesable_actor)
         print(f"[SequencerControls] Added spawnable {possesable_actor.get_name()} to sequence with ID {possesable}")
+        self.skeletal_mesh = possesable_actor
+        self.skeletal_mesh_binding_proxy = possesable
+
         return possesable
 
     def add_animation_to_actor(self, skeletal_mesh, anim):
         if not self.sequence:
             print("Error: No sequence set.")
+            return
+        
+        # Don't add the same animation twice
+        if self.anim_sequence == anim:
+            print(f"[SequencerControls] Animation {anim.get_name()} already added to actor {skeletal_mesh.get_name()} in sequence")
             return
 
         params = unreal.MovieSceneSkeletalAnimationParams()
@@ -126,6 +150,7 @@ class SequencerControls:
         animation_section.set_editor_property('Params', params)
         animation_section.set_range(0, anim.get_play_length()*self.frame_rate)
 
+        self.anim_sequence = anim
         print(f"[SequencerControls] Added animation {anim.get_name()} to actor {skeletal_mesh.get_name()} in sequence")
         return anim_track, animation_section
     
@@ -145,12 +170,98 @@ class SequencerControls:
         control_rig_instance = unreal.ControlRigSequencerLibrary.get_control_rigs(self.sequence)[0].control_rig
 
         print(f"[SequencerControls] Added Control Rig {control_rig.get_name()} to actor {skeletal_mesh.get_name()} in sequence")
+        self.control_rig = control_rig_instance
         return rig_track, control_rig_instance
+    
+    def set_keyframe_control_rig(self, ctrl_name, value, frame_number=None, modus="Float"):
+        if not self.sequence:
+            print("Error: No sequence set.")
+            return
+
+        if not self.control_rig:
+            print("Error: No control rig set.")
+            return
+
+        if frame_number is None:
+            frame_number = unreal.FrameNumber(self.time_controls.current_time())
+
+        if modus == "Float":
+            # Set the control rig float value
+            unreal.ControlRigSequencerLibrary.set_local_control_rig_float(self.sequence, self.control_rig, ctrl_name, frame_number, value, set_key=True)
+            # Set a keyframe at the current time
+            current = unreal.ControlRigSequencerLibrary.get_local_control_rig_float(self.sequence, self.control_rig, ctrl_name, frame_number)
+            print(f"[SequencerControls] Set {ctrl_name} to {value} at frame {frame_number}, current value: {current}")
+        elif modus == "RotatorX":
+            xRot = unreal.Rotator(value, 0, 0)
+            unreal.ControlRigSequencerLibrary.set_local_control_rig_rotator(self.sequence, self.control_rig, ctrl_name, frame_number, xRot, set_key=True)
+            current = unreal.ControlRigSequencerLibrary.get_local_control_rig_rotator(self.sequence, self.control_rig, ctrl_name, frame_number)
+            print(f"[SequencerControls] Set {ctrl_name} to {xRot} at frame {frame_number}, current value: {current}")
+        elif modus == "RotatorY":
+            yRot = unreal.Rotator(0, value, 0)
+            unreal.ControlRigSequencerLibrary.set_local_control_rig_rotator(self.sequence, self.control_rig, ctrl_name, frame_number, yRot, set_key=True)
+            current = unreal.ControlRigSequencerLibrary.get_local_control_rig_rotator(self.sequence, self.control_rig, ctrl_name, frame_number)
+            print(f"[SequencerControls] Set {ctrl_name} to {yRot} at frame {frame_number}, current value: {current}")
+        elif modus == "RotatorZ":
+            zRot = unreal.Rotator(0, 0, value)
+            unreal.ControlRigSequencerLibrary.set_local_control_rig_rotator(self.sequence, self.control_rig, ctrl_name, frame_number, zRot, set_key=True)
+            current = unreal.ControlRigSequencerLibrary.get_local_control_rig_rotator(self.sequence, self.control_rig, ctrl_name, frame_number)
+            print(f"[SequencerControls] Set {ctrl_name} to {zRot} at frame {frame_number}, current value: {current}")
+    
+    def export_current_sequence(self, file_name, file_path, ue_package_path="/Game/"):
+        if not self.sequence:
+            print("Error: No sequence set.")
+            return
+        
+        # ls_editor = unreal.get_editor_subsystem(unreal.LevelSequenceEditorSubsystem)
+        # print(self.skeletal_mesh)
+        # binding = self.sequence.find_binding_by_name(self.skeletal_mesh.get_name())
+        binding = self.skeletal_mesh_binding_proxy
+
+        # if not binding or binding.get_id() == unreal.Guid():
+        #     print(self.skeletal_mesh)
+        #     print("Error: Could not find valid binding for skeletal mesh.")
+        #     return
+
+        # bake_settings = unreal.BakingAnimationKeySettings()
+        # bake_settings.reduce_keys = True
+        # success = ls_editor.bake_transform_with_settings(
+        #     object_bindings=[binding],
+        #     settings=bake_settings
+        # )
+
+        # if success:
+        #     print("Transform baking completed successfully.")
+        # else:
+        #     print("Transform baking failed.")
+
+        # Get the current level sequence
+        level_sequence = self.sequence
+        # level_sequence = unreal.LevelSequenceEditorBlueprintLibrary.get_current_level_sequence()
+
+        # Grab the Level Editor World
+        editor_subsystem = unreal.get_editor_subsystem(unreal.UnrealEditorSubsystem)
+        world = editor_subsystem.get_editor_world()
+
+        # Create animation sequence export options
+        anim_seq_export_options = unreal.AnimSeqExportOption()
+        anim_seq_export_options.export_morph_targets = True
+
+        animFactory = unreal.AnimSequenceFactory()
+        animFactory.target_skeleton = self.skeletal_mesh.skeletal_mesh_component.skeletal_mesh.skeleton
+        # Get asset tools
+        # Create an empty AnimSequence - /Game/Test_Anim
+        print(dir(self.skeletal_mesh))
+        asset_tools = unreal.AssetToolsHelpers.get_asset_tools()
+        anim_sequence = unreal.AssetTools.create_asset(asset_tools, asset_name = file_name, package_path = ue_package_path, asset_class = unreal.AnimSequence, factory = animFactory)
+
+        # Bake to the created AnimSequence
+        unreal.SequencerTools.export_anim_sequence(world, level_sequence, anim_sequence, anim_seq_export_options, binding, False)
+
 
 
 # # example usage for /Game/anims/testSequence.testSequence
 # sequence = unreal.EditorAssetLibrary.load_asset("/Game/anims/testSequence.testSequence")
-# sequencer_controls = SequencerControls(sequence, frame_rate=100)
+# sequencer_controls = SequencerControls(sequence, frame_rate=120)
 
 # # Example usage of time controls
 # sequencer_controls.time_controls.jump_to_frame(10)  # Jump to frame 10
@@ -178,6 +289,8 @@ class SequencerControls:
 
 # sequencer_controls.time_controls.jump_to_frame(30)  # Jump to frame 30
 # frame = unreal.FrameNumber(sequencer_controls.time_controls.current_time())
-# unreal.ControlRigSequencerLibrary.set_local_control_rig_float(sequence, control_rig_instance, "RightHandIndex", frame, 20)
+# sequencer_controls.set_keyframe_control_rig("RightHandIndex", 20.0, frame)  # Set a keyframe for the control rig at frame 30
 # transform = unreal.ControlRigSequencerLibrary.get_local_control_rig_float(sequence, control_rig_instance, "RightHandIndex", frame)
 # print(transform)
+
+# sequencer_controls.export_current_sequence("file_name_test", "C:/Users/VICON/Desktop/Code/UnrealSequenceController/tmp", ue_package_path="/Game/")
