@@ -189,9 +189,9 @@ class SequencerControls:
 
         if modus == "Float":
             # Set the control rig float value
-            unreal.ControlRigSequencerLibrary.set_local_control_rig_float(self.sequence, self.control_rig, ctrl_name, frame_number, value, set_key=True)
+            seq_lib.set_local_control_rig_float(self.sequence, self.control_rig, ctrl_name, frame_number, value, set_key=True)
             # Set a keyframe at the current time
-            current = unreal.ControlRigSequencerLibrary.get_local_control_rig_float(self.sequence, self.control_rig, ctrl_name, frame_number)
+            current = seq_lib.get_local_control_rig_float(self.sequence, self.control_rig, ctrl_name, frame_number)
             print(f"[SequencerControls] Set {ctrl_name} to {value} at frame {frame_number}, current value: {current}")
         elif modus.startswith("Rotator"):
             rot_map = {
@@ -203,7 +203,7 @@ class SequencerControls:
             seq_lib.set_local_control_rig_rotator(self.sequence, self.control_rig, ctrl_name, frame_number, rot, set_key=True)
             current = seq_lib.get_local_control_rig_rotator(self.sequence, self.control_rig, ctrl_name, frame_number)
         elif modus.startswith("EulerRotation"):
-            current_transform = unreal.ControlRigSequencerLibrary.get_local_control_rig_euler_transform(self.sequence, self.control_rig, ctrl_name, frame_number)
+            current_transform = seq_lib.get_local_control_rig_euler_transform(self.sequence, self.control_rig, ctrl_name, frame_number)
             if modus == "EulerRotationX":
                 current_transform.rotation.roll = value
             elif modus == "EulerRotationY":
@@ -211,7 +211,17 @@ class SequencerControls:
             elif modus == "EulerRotationZ":
                 current_transform.rotation.pitch = value
             seq_lib.set_local_control_rig_euler_transform(self.sequence, self.control_rig, ctrl_name, frame_number, current_transform, set_key=True)
-            current = unreal.ControlRigSequencerLibrary.get_local_control_rig_euler_transform(self.sequence, self.control_rig, ctrl_name, frame_number)
+            current = seq_lib.get_local_control_rig_euler_transform(self.sequence, self.control_rig, ctrl_name, frame_number)
+        elif modus.startswith("EulerTransform"):
+            current_transform = seq_lib.get_local_control_rig_euler_transform(self.sequence, self.control_rig, ctrl_name, frame_number)
+            if modus == "EulerTransformX":
+                current_transform.location.x = value
+            elif modus == "EulerTransformY":
+                current_transform.location.y = value
+            elif modus == "EulerTransformZ":
+                current_transform.location.z = value
+            seq_lib.set_local_control_rig_euler_transform(self.sequence, self.control_rig, ctrl_name, frame_number, current_transform, set_key=True)
+            current = seq_lib.get_local_control_rig_euler_transform(self.sequence, self.control_rig, ctrl_name, frame_number)
         else:
             raise ValueError(f"Unsupported modus: {modus}")
         

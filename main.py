@@ -6,7 +6,7 @@ from functools import partial
 from src.sequencer.sequencerControls import get_actor_by_name
 import json
 
-control_mapping = json.load(open("C:\\Users\\VICON\\Desktop\\Code\\UnrealSequenceController\\MIDIToCTRLMapping3.json", "r"))
+control_mapping = json.load(open("C:\\Users\\VICON\\Desktop\\Code\\UnrealSequenceController\\MIDIToCTRLMapping4.json", "r"))
 
 # Define a function to handle incoming MIDI messages
 def handle_midi_message(msg, sequencer_controls=None):
