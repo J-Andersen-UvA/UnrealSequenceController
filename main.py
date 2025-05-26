@@ -6,13 +6,22 @@ from functools import partial
 from src.sequencer.sequencerControls import get_actor_by_name
 import json
 
-control_mapping = json.load(open("C:\\Users\\VICON\\Desktop\\Code\\UnrealSequenceController\\MIDIToCTRLMapping2.json", "r"))
+control_mapping = json.load(open("C:\\Users\\VICON\\Desktop\\Code\\UnrealSequenceController\\FAD9.json", "r"))
 
 # Define a function to handle incoming MIDI messages
 def handle_midi_message(msg, sequencer_controls=None):
     print(f"[MAIN] Received MIDI: {msg}")
+    value = 0.0
+    time_knob = False
+    if msg.type == "program_change":
+        value = float(msg.program)
+        time_knob = True
+        print(f"[MAIN] Program Change: {value}")
+    elif msg.type == "control_change":
+        value = float(msg.value)
+
     # Map the MIDI value (0-127) to the range -100 to 100
-    value = ((float(msg.value) / 127.0) * 200) - 100
+    value = ((value / 127.0) * 200) - 100
     value = max(-100, min(100, value))  # Clamp value between -100 and 100
     if value == 0.0:
         value = 0.0  # Ensure value is exactly 0.0 if clamped to 0
@@ -20,10 +29,10 @@ def handle_midi_message(msg, sequencer_controls=None):
         value = 100.0
     elif value == -100.0:
         value = -100.0
-    
+
     # Send the value to the sequencer
-    if control_mapping[str(msg.control)] == "TimeKnob":
-        sequencer_controls.time_controls.jump_to_percent(value)  # Jump to the percentage of the sequence length
+    if time_knob:
+        sequencer_controls.time_controls.time_knob_control(value)  # Jump to the percentage of the sequence length
     elif control_mapping[str(msg.control)] == "SaveSequence":
         sequencer_controls.export_current_sequence("file_name_test", "file_path", ue_package_path="/Game/")
     elif str(msg.control) in control_mapping.keys():
@@ -62,8 +71,9 @@ def load_in_animation(seq_path="/Game/anims/testSequence.testSequence", skelmesh
     return sequencer_controls, sequence, control_rig_instance
 
 sequencer_controls, sequence, control_rig_instance = load_in_animation()
-midi = MidiListener(device_name="Hobscure MIDI 0", callback=lambda msg: handle_midi_message(msg, sequencer_controls=sequencer_controls))
+# midi = MidiListener(device_name="Hobscure MIDI 0", callback=lambda msg: handle_midi_message(msg, sequencer_controls=sequencer_controls))
+midi = MidiListener(device_name="FAD.9", callback=lambda msg: handle_midi_message(msg, sequencer_controls=sequencer_controls))
 tickHooker_instance = tickHooker()
 midi.open_port()
-tickHooker_instance.hook_for_x_ticks(midi.listen_once, 2000, final_func=midi.close_port)
+tickHooker_instance.hook_for_x_ticks(midi.listen_once, 1000, final_func=midi.close_port)
 

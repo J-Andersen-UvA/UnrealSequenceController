@@ -29,6 +29,30 @@ class SequencerControls:
         def __init__(self, sequence: unreal.LevelSequence):
             self.sequence = sequence
             self.initial_playback_range = self.get_sequence_range()
+            self.timeKnobPrevious = 0.0
+
+        def time_knob_control(self, timeKnobCur: float, step: int = 1):
+            if not self.sequence:
+                print("Error: No sequence set.")
+                return
+
+            # Calculate the new time based on the percentage
+            if timeKnobCur < -100.0 or timeKnobCur > 100.0:
+                print("Error: timeKnobCur must be between -100 and 100, received:", timeKnobCur)
+                return
+            
+            # Timeknob is clamped between 0 and 100
+            forward = False
+            if timeKnobCur > self.timeKnobPrevious:
+                forward = True
+            elif timeKnobCur == self.timeKnobPrevious:
+                forward = timeKnobCur == 100.0
+            self.timeKnobPrevious = timeKnobCur
+            step = step if forward else -step
+
+            curTime = unreal.LevelSequenceEditorBlueprintLibrary.get_current_time()
+            new_time = curTime + step
+            unreal.LevelSequenceEditorBlueprintLibrary.set_current_time(new_time)
 
         def jump_to_frame(self, frame_number: int):
             if not self.sequence:
