@@ -5,11 +5,20 @@ import unreal
 from functools import partial
 from src.sequencer.sequencerControls import get_actor_by_name
 import json
+import time
 
 control_mapping = json.load(open("C:\\Users\\VICON\\Desktop\\Code\\UnrealSequenceController\\FAD9.json", "r"))
+last_update_times = {}
 
 # Define a function to handle incoming MIDI messages
 def handle_midi_message(msg, sequencer_controls=None):
+    now = time.time()
+    control_id = str(msg.control) if hasattr(msg, 'control') else str(msg.program)
+    if control_id in last_update_times and now - last_update_times[control_id] < 0.1:
+        print(f"[MAIN] Ignoring MIDI message {msg} due to rate limiting.")
+        return
+    last_update_times[control_id] = now
+
     print(f"[MAIN] Received MIDI: {msg}")
     value = 0.0
     time_knob = False
