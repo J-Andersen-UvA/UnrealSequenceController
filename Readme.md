@@ -30,14 +30,14 @@ This script provides the SequencerControls class, which manages Unreal Engine Le
 📘 Functionality Overview
 | Function | Description | Usage |
 |:----|:----|:-----|
-| get_actor_by_name(name) | Finds an actor in the current level by name substring match. | get_actor_by_name("MyCharacter") |
-| add_actor_to_sequence(actor) | Adds an actor to the sequence (as a possessable). | sc.add_actor_to_sequence(actor) |
-| add_possesable_to_sequence(actor) | Adds a possessable actor and tracks it internally. | skeletal_mesh = sc.add_possesable_to_sequence(actor) |
-| add_animation_to_actor(mesh, anim) | Adds an animation section to the actor's track. | sc.add_animation_to_actor(mesh, anim) |
-| add_control_rig_to_actor(mesh, rig_asset) | Adds a Control Rig to the sequence and returns it. | sc.add_control_rig_to_actor(mesh, rig) |
-| set_keyframe_control_rig(ctrl_name, value, frame=None, modus="Float") | Keyframes a control rig channel (float, rotator, transform, etc.). | sc.set_keyframe_control_rig("RightHandIndex", 20.0) |
-| remove_keys_in_range_for_ctrl(ctrl_name, start, end) | Removes float keys from a control rig channel within a frame range. | sc.remove_keys_in_range_for_ctrl("RightHandIndex", 100, 120) |
-| export_current_sequence(file_name, file_path, ue_package_path) | Exports the sequence as an AnimSequence asset. | sc.export_current_sequence("RunAnim", "C:/Export", "/Game/Exports") |
+| `get_actor_by_name(name)` | Finds an actor in the current level by name substring match. | `get_actor_by_name("MyCharacter")` |
+| `add_actor_to_sequence(actor)` | Adds an actor to the sequence (as a possessable). | `sc.add_actor_to_sequence(actor)` |
+| `add_possesable_to_sequence(actor)` | Adds a possessable actor and tracks it internally. | `skeletal_mesh = sc.add_possesable_to_sequence(actor)` |
+| `add_animation_to_actor(mesh, anim)` | Adds an animation section to the actor's track. | `sc.add_animation_to_actor(mesh, anim)` |
+| `add_control_rig_to_actor(mesh, rig_asset)` | Adds a Control Rig to the sequence and returns it. | `sc.add_control_rig_to_actor(mesh, rig)` |
+| `set_keyframe_control_rig(ctrl_name, value, frame=None, modus="Float")` | Keyframes a control rig channel (float, rotator, transform, etc.). | `sc.set_keyframe_control_rig("RightHandIndex", 20.0)` |
+| `remove_keys_in_range_for_ctrl(ctrl_name, start, end)` | Removes float keys from a control rig channel within a frame range. | `sc.remove_keys_in_range_for_ctrl("RightHandIndex", 100, 120)` |
+| `export_current_sequence(file_name, file_path, ue_package_path)` | Exports the sequence as an AnimSequence asset. | `sc.export_current_sequence("RunAnim", "C:/Export", "/Game/Exports")` |
 
 🕓 time_controls (Nested Class)
 Control sequence playback and timing using this internal utility.
@@ -45,7 +45,7 @@ Control sequence playback and timing using this internal utility.
 | :--- | :--- | :--- |
 | `jump_to_frame(frame)`                     | Jump to a specific frame.                              | `sc.time_controls.jump_to_frame(100)`                  |
 | `jump_x_frames_forward(x)` / `backward(x)` | Move forward/backward `x` frames.                      | `sc.time_controls.jump_x_frames_forward(10)`           |
-| `time_knob_control(value)`                 | Control time scrubbing interactively via a knob/fader. | `sc.time_controls.time_knob_control(-20.0)`            |
+| `time_knob_control(value, step)`                 | Control time scrubbing interactively via a knob. | `sc.time_controls.time_knob_control(-20.0)`            |
 | `get_sequence_range()`                     | Get start and end frames.                              | `(start, end) = sc.time_controls.get_sequence_range()` |
 | `set_sequence_range(start, end)`           | Set playback frame range.                              | `sc.time_controls.set_sequence_range(0, 240)`          |
 | `reset_sequence_range()`                   | Restore original playback range.                       | `sc.time_controls.reset_sequence_range()`              |
