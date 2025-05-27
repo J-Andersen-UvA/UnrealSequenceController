@@ -11,6 +11,19 @@ This script defines the OSCListener class, which provides a non-blocking UDP lis
 ## OSCMain.py
 The main entry point for the project, this script initializes the MIDI listener, tick hooker, and sequencer controls. It demonstrates loading animations, control rigs, and sequences.
 
+## FAD9.json
+This JSON file defines how MIDI or OSC controls are mapped to Unreal Engine actions or animation controls within the Sequencer.
+
+Each key follows the format:
+```json
+"control_<number>": <mapped_action_or_parameter>
+```
+🧩 How it works:
+- control_<X> corresponds to a MIDI CC number or OSC address like /control_3.
+- The value tells the system what to do when that control is used.
+
+
+
 ## sequencerControls.py
 This script provides the SequencerControls class, which manages Unreal Engine Level Sequences. It includes methods for adding actors, animations, and control rigs to sequences, as well as manipulating playback ranges, keyframes, and exporting animations.
 
