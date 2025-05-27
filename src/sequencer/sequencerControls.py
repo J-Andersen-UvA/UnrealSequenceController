@@ -251,6 +251,33 @@ class SequencerControls:
         
         print(f"[SequencerControls] Set {ctrl_name} to {value} at frame {frame_number}, current value: {current}")
     
+    def remove_keys_in_range_for_ctrl(self, ctrl_name, start_frame, end_frame):
+        if not self.sequence or not self.control_rig:
+            print("Error: No sequence or control rig set.")
+            return
+
+        if start_frame > end_frame:
+            start_frame, end_frame = end_frame, start_frame
+
+        for binding in self.sequence.get_bindings():
+            for track in binding.get_tracks():
+                if isinstance(track, unreal.MovieSceneControlRigParameterTrack):
+                    for section in track.get_sections():
+                        # We must iterate all possible scripting channels manually
+                        all_channels = section.get_channels_by_type(unreal.MovieSceneScriptingFloatChannel)
+                        # all_channels = section.get_channel_proxy().get_all_channels()
+                        for channel in all_channels:
+                            # This returns the name as shown in Sequencer
+                            name = channel.channel_name
+                            if name == ctrl_name:
+                                if isinstance(channel, unreal.MovieSceneScriptingFloatChannel):
+                                    keys = channel.get_keys()
+                                    for key in keys:
+                                        frame = key.get_time().frame_number.value
+                                        if start_frame <= frame <= end_frame:
+                                            print(f"[SequencerControls] Removing key on '{ctrl_name}' at frame {frame}")
+                                            channel.remove_key(key)
+
     def export_current_sequence(self, file_name, file_path, ue_package_path="/Game/"):
         if not self.sequence:
             print("Error: No sequence set.")
