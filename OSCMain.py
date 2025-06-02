@@ -5,11 +5,11 @@ from src.sequencer.sequencerControls import SequencerControls, get_actor_by_name
 import unreal
 
 def load_in_animation():
-    seq = unreal.EditorAssetLibrary.load_asset("/Game/anims/testSequence.testSequence")
-    controls = SequencerControls(seq, frame_rate=100)
+    seq = unreal.EditorAssetLibrary.load_asset("/Game/anims/empty.empty")
+    controls = SequencerControls(seq, frame_rate=24)
     actor = get_actor_by_name("SkeletalMeshActor_6")
     skeletal_mesh = controls.add_possesable_to_sequence(actor)
-    anim_asset = unreal.AnimSequence.cast(unreal.load_asset("/Game/anims/tmp/pet/PET-A_250228_1_Anim.PET-A_250228_1_Anim"))
+    anim_asset = unreal.AnimSequence.cast(unreal.load_asset("/Game/anims/Cinematics/2025-05-28/Scene_1_204_Subscenes/Animation/GlassesGuyRecord_Scene_1_204.GlassesGuyRecord_Scene_1_204"))
     _, section = controls.add_animation_to_actor(skeletal_mesh, anim_asset)
     controls.time_controls.set_sequence_range(section.get_start_frame(), section.get_end_frame())
     rig_asset = unreal.ControlRigBlueprint.cast(unreal.load_asset("/Game/Avatars/RPM/GlassesGuy/armHands_Rig.armHands_Rig"))
@@ -28,3 +28,6 @@ def tick_func(delta_seconds):
 
 tick = tickHooker()
 tick.hook(tick_func)
+
+
+# tick.unhook()  # Uncomment to unhook the tick when done

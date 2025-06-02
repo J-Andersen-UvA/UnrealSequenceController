@@ -1,4 +1,5 @@
 {
+    "control_2" : {"set_prev" : ["control_3", "control_4", "control_5", "control_6", "control_7", "control_8", "control_9", "control_10"]},
     "control_3" : "RightHandIndex",
     "control_4" : "RightHandMiddle",
     "control_5" : "RightHandRing",
@@ -26,11 +27,13 @@
     "control_29" : "RemoveKeysLeftHandRing",
     "control_30" : "RemoveKeysLeftHandPinky",
 
+    "control_1" : "KeyframeAllZero",
+
     "control_-1" : "TimeKnob",
     "control_67" : "TimeKnobSlow",
     "control_64" : "TimeKnobFast",
     "control_47" : "FrameBackward",
     "control_48" : "FrameForward",
-    "control_45" : "Play",
+    "control_45" : "PlayPause",
     "control_46" : "Stop"
 }

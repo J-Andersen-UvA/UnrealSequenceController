@@ -1,4 +1,17 @@
 import unreal
+from enum import Enum
+
+class ctrlRigVals(Enum):
+    RightHandIndex = "RightHandIndex"
+    RightHandMiddle = "RightHandMiddle"
+    RightHandRing = "RightHandRing"
+    RightHandPinky = "RightHandPinky"
+    RightHandThumb = "RightHandThumb"
+    LeftHandIndex = "LeftHandIndex"
+    LeftHandMiddle = "LeftHandMiddle"
+    LeftHandRing = "LeftHandRing"
+    LeftHandPinky = "LeftHandPinky"
+    LeftHandThumb = "LeftHandThumb"
 
 def get_actor_by_name(name):
     """
@@ -53,6 +66,18 @@ class SequencerControls:
             curTime = unreal.LevelSequenceEditorBlueprintLibrary.get_current_time()
             new_time = curTime + step
             unreal.LevelSequenceEditorBlueprintLibrary.set_current_time(new_time)
+        
+        def play_pause(self):
+            if not self.sequence:
+                print("Error: No sequence set.")
+                return
+            
+            if unreal.LevelSequenceEditorBlueprintLibrary.is_playing():
+                unreal.LevelSequenceEditorBlueprintLibrary.pause()
+                print("[SequencerControls] Playback paused")
+            else:
+                unreal.LevelSequenceEditorBlueprintLibrary.play()
+                print("[SequencerControls] Playback started")
 
         def jump_to_frame(self, frame_number: int):
             if not self.sequence:
@@ -251,6 +276,11 @@ class SequencerControls:
         
         print(f"[SequencerControls] Set {ctrl_name} to {value} at frame {frame_number}, current value: {current}")
     
+    def set_keyframe_all_zero(self):
+        for ctrl in ctrlRigVals:
+            print(f"[SequencerControls] Setting keyframe for {ctrl.value} to 0.0")
+            self.set_keyframe_control_rig(ctrl.value, 0.0, modus="Float")
+
     def remove_keys_in_range_for_ctrl(self, ctrl_name, start_frame, end_frame):
         if not self.sequence or not self.control_rig:
             print("Error: No sequence or control rig set.")
