@@ -221,6 +221,18 @@ class SequencerControls:
         print(f"[SequencerControls] Added Control Rig {control_rig.get_name()} to actor {skeletal_mesh.get_name()} in sequence")
         self.control_rig = control_rig_instance
         return rig_track, control_rig_instance
+
+    def remove_existing_animation_tracks(self):
+        """Remove all skeletal animation tracks from the current skeletal mesh binding."""
+        if not self.skeletal_mesh_binding_proxy:
+            unreal.log_warning("[SequencerControls] No skeletal mesh binding proxy found.")
+            return
+
+        for track in self.skeletal_mesh_binding_proxy.get_tracks():
+            if isinstance(track, unreal.MovieSceneSkeletalAnimationTrack):
+                unreal.log(f"[SequencerControls] Removing existing animation track: {track.get_display_name()}")
+                self.skeletal_mesh_binding_proxy.remove_track(track)
+
     
     def set_keyframe_control_rig(self, ctrl_name, value, frame_number=None, modus="Float"):
         if not self.sequence:
