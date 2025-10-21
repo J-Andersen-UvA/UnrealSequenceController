@@ -1,3 +1,5 @@
+Moved to cpp using unreal's UI: https://github.com/J-Andersen-UvA/ToucanMidiSequencer
+
 # Unreal Sequence Controller
 
 The Unreal Sequence Controller is a Python-based toolset designed to streamline and enhance the control of Unreal Engine Level Sequences. By leveraging Unreal's Python API, this project provides functionality for post processing animations using control rigs, and MIDI-based real-time control. With features such as time manipulation, keyframing, and animation export through a MIDI controller.
